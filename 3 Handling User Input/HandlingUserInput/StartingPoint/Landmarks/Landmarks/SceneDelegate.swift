@@ -1,10 +1,9 @@
-//
-//  SceneDelegate.swift
-//  Landmarks
-//
-//  Created by Néstor Iván on 8/6/19.
-//  Copyright © 2019 Néstor Iván. All rights reserved.
-//
+/*
+See LICENSE folder for this sample’s licensing information.
+
+Abstract:
+The scene delegate.
+*/
 
 import UIKit
 import SwiftUI
@@ -21,7 +20,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // Use a UIHostingController as window root view controller
         if let windowScene = scene as? UIWindowScene {
             let window = UIWindow(windowScene: windowScene)
-            window.rootViewController = UIHostingController(rootView: ContentView())
+            window.rootViewController = UIHostingController(rootView: LandmarkList())
             self.window = window
             window.makeKeyAndVisible()
         }
@@ -54,7 +53,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // Use this method to save data, release shared resources, and store enough scene-specific state information
         // to restore the scene back to its current state.
     }
-
 
 }
 
