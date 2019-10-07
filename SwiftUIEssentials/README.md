@@ -312,11 +312,202 @@ struct LandmarkDetail: View {
 
 ## Handling User Input
 
+Adding a star to each row depending if the ```landmark``` 's ```isFavorite``` property is set to **true**. 
 
+```swift
+struct Landmark: Hashable, Codable, Identifiable {
+    var id: Int
+    var name: String
+    fileprivate var imageName: String
+    fileprivate var coordinates: Coordinates
+    var state: String
+    var park: String
+    var category: Category
+    var isFavorite: Bool //first, add the isFavorite property
 
+    var locationCoordinate: CLLocationCoordinate2D {
+        CLLocationCoordinate2D(
+            latitude: coordinates.latitude,
+            longitude: coordinates.longitude)
+    }
 
+    enum Category: String, CaseIterable, Codable, Hashable {
+        case featured = "Featured"
+        case lakes = "Lakes"
+        case rivers = "Rivers"
+        case mountains = "Mountains"
+    }
+}
+```
 
+```swift
+struct LandmarkRow: View {
+    var landmark: Landmark
+    var body: some View {
+        HStack {
+            landmark.image
+                .resizable()
+                .frame(width: 50, height: 50)
+            Text(landmark.name)
+            Spacer()
+            
+            if landmark.isFavorite {
+                Image(systemName: "star.fill")
+                    .imageScale(.medium)
+                    .foregroundColor(.yellow)
+            }
+        }
+    }
+}
+```
 
+#### Filter the List View
+
+You can customize the list view so that it shows all of the landmarks, or just the user's favorites. To do this, you'll need to add a bit of **state** to the **LandmarkList** type. 
+
+**State** is a value, or a set of values, that can change over time, and that affects a view's behavior, content, or layout. You use a property with the ```@State``` attribute to add **state** to a view. 
+
+**State** is a persistent value of a given type, through which a view reads and monitors the value. 
+
+```swift
+struct LandmarkList: View {
+    @State var showFavoritesOnly = false
+    var body: some View {
+        NavigationView {
+            List(landmarkData) { landmark in
+                if !self.showFavoritesOnly || landmark.isFavorite {
+                    NavigationLink(destination: LandmarkDetail(landmark: landmark)) {
+                        LandmarkRow(landmark: landmark)
+                    }
+                }
+            }
+            .navigationBarTitle(Text("Landmarks"), displayMode: .large)
+        }
+    }
+}
+```
+
+```swift
+struct LandmarkRow: View {
+    var landmark: Landmark
+    var body: some View {
+        HStack {
+            landmark.image
+                .resizable()
+                .frame(width: 50, height: 50)
+            Text(landmark.name)
+            Spacer()
+            if landmark.isFavorite {
+                Image(systemName: "star.fill")
+                    .imageScale(.medium)
+                    .foregroundColor(.yellow)
+            }
+        }
+    }
+}
+```
+
+### Add a Control to Toggle the State
+
+A **binding** acts as a reference to a mutable state. When a user taps the toggle from off to on, and off again, the control uses the binding to update the view's state accordingly. 
+
+To combine static and dynamic views in a list, or to combine groups of dynamic views, use the ForEach type instead of passing your collection of data to **List**. 
+
+```swift
+struct LandmarkList: View {
+    @State var showFavoritesOnly = false
+    var body: some View {
+        NavigationView {
+            List {
+                ForEach(landmarkData) { landmark in
+                    if !self.showFavoritesOnly || landmark.isFavorite {
+                        NavigationLink(destination: LandmarkDetail(landmark: landmark)) {
+                            LandmarkRow(landmark: landmark)
+                        }
+                    }
+                }
+            }
+            .navigationBarTitle(Text("Landmarks"), displayMode: .large)
+        }
+    }
+}
+```
+
+Next, add a **Toggle view** as the first child of the **List** view, passing a binding to show FavoritesOnly. You use the $ prefix to access a binding to a state variable, or one of its properties. 
+
+```swift
+struct LandmarkList: View {
+    @State var showFavoritesOnly = false
+    var body: some View {
+        NavigationView {
+            List {
+                
+                Toggle(isOn: $showFavoritesOnly) {
+                    Text("Favorites only")
+                }
+                
+                ForEach(landmarkData) { landmark in
+                    if !self.showFavoritesOnly || landmark.isFavorite {
+                        NavigationLink(destination: LandmarkDetail(landmark: landmark)) {
+                            LandmarkRow(landmark: landmark)
+                        }
+                    }
+                }
+            }
+            .navigationBarTitle(Text("Landmarks"), displayMode: .large)
+        }
+    }
+}
+```
+
+![ss-9](images/ss-9.png)
+
+### Use and Observable Object for Storage
+
+To prepare for the user control which particular landmarks are favorites, you'll first store the landmark data in an **observable** object. An **observable** object is a custom object for your data that can be bound to a view from storage in SwiftUI's environment. SwiftUI watches for any changes to observable objects that could affect a view, and displays the correct version of the view after a change. 
+
+SwiftUI subscribes to your observable object, and updates any views that need refreshing when the data changes. An observable object needs to publish any changes to its data, so that it's subscribers can pick up the change, therefore add the **@Published** attribute to each property. 
+
+```swift
+import Foundation
+import Combine
+
+final class UserData: ObservableObject {
+    @Published var showFavoritesOnly = false
+    @Published var landmarks = landmarkData
+}
+
+```
+
+### Adopt the Model Object in Your Views 
+
+The ```userData``` property gets its value automatically, as long as the environment **Object** modifier has been applied to a parent. 
+
+```swift
+struct LandmarkList: View {
+//    @State var showFavoritesOnly = false
+    @EnvironmentObject var userData: UserData    
+    var body: some View {
+        NavigationView {
+            List {
+                
+                Toggle(isOn: $userData.showFavoritesOnly) {
+                    Text("Favorites only")
+                }
+                
+                ForEach(userData.landmarks) { landmark in
+                    if !self.userData.showFavoritesOnly || landmark.isFavorite {
+                        NavigationLink(destination: LandmarkDetail(landmark: landmark)) {
+                            LandmarkRow(landmark: landmark)
+                        }
+                    }
+                }
+            }
+            .navigationBarTitle(Text("Landmarks"), displayMode: .large)
+        }
+    }
+}
+```
 
 
 
