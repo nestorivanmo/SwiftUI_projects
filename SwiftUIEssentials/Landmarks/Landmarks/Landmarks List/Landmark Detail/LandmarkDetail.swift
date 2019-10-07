@@ -1,24 +1,22 @@
 //
-//  ContentView.swift
+//  LandmarkDetail.swift
 //  Landmarks
 //
-//  Created by Néstor I. Martínez Ostoa on 10/6/19.
+//  Created by Néstor I. Martínez Ostoa on 10/7/19.
 //  Copyright © 2019 Néstor I. Martínez Ostoa. All rights reserved.
 //
 
 import SwiftUI
 
-struct ContentView: View {
+struct LandmarkDetail: View {
     var body: some View {
         VStack {
             MapView()
                 .edgesIgnoringSafeArea(.top)
                 .frame(height: 300)
-            
             CircleImage()
-                .offset(y: -130)
+                .offset(y:-130)
                 .padding(.bottom, -130)
-            
             VStack(alignment: .leading) {
                 Text("Turtle Rock")
                     .font(.title)
@@ -27,18 +25,17 @@ struct ContentView: View {
                         .font(.subheadline)
                     Spacer()
                     Text("California")
-                    .font(.subheadline)
+                        .font(.subheadline)
                 }
             }
-            .padding()
-            
+                .padding()
             Spacer()
         }
     }
 }
 
-struct ContentView_Previews: PreviewProvider {
+struct LandmarkDetail_Previews: PreviewProvider {
     static var previews: some View {
-        ContentView()
+        LandmarkDetail()
     }
 }
