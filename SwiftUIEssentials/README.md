@@ -1,6 +1,6 @@
 # SwiftUI Essentials
 
-By default, a SwiftUI file declares two structures. One that conforms to the View protocol and describes the view content and layour. The second declares a preview for that view. 
+By default, a SwiftUI file declares two structures. One that conforms to the View protocol and describes the view content and layout. The second declares a preview for that view. 
 
 ```swift
 import SwiftUI
@@ -42,7 +42,7 @@ struct ContentView: View {
 }
 ```
 
-A **spacer** expants its containing view to use all of the size of its parent view. 
+A **spacer** expands its containing view to use all of the size of its parent view. 
 
 **Padding** gives the edges (leading and trailing) a little seperation from the Safe Area's edges. 
 
@@ -165,7 +165,7 @@ You can use a **Group** to return mutliple previews from a preview provider. **G
 Group {
             LandmarkRow(landmark: landmarkData[0])
             LandmarkRow(landmark: landmarkData[1])
-        }
+}
         .previewLayout(.fixed(width: 300, height: 70))
 ```
 
@@ -250,7 +250,7 @@ struct LandmarkList: View {
 }
 ```
 
-
+![icon](images/ss-6.png)
 
 ### Set Up Navigation Between List and Detail
 
@@ -365,9 +365,9 @@ struct LandmarkRow: View {
 
 You can customize the list view so that it shows all of the landmarks, or just the user's favorites. To do this, you'll need to add a bit of **state** to the **LandmarkList** type. 
 
-**State** is a value, or a set of values, that can change over time, and that affects a view's behavior, content, or layout. You use a property with the ```@State``` attribute to add **state** to a view. 
+**State** is a value, or a set of values, that can change over time, that affects a view's behavior, content, or layout. You use a property with the ```@State``` attribute to add state to a view. 
 
-**State** is a persistent value of a given type, through which a view reads and monitors the value. 
+***State is a persistent value of a given type, through which a view reads and monitors the value.***
 
 ```swift
 struct LandmarkList: View {
@@ -387,29 +387,9 @@ struct LandmarkList: View {
 }
 ```
 
-```swift
-struct LandmarkRow: View {
-    var landmark: Landmark
-    var body: some View {
-        HStack {
-            landmark.image
-                .resizable()
-                .frame(width: 50, height: 50)
-            Text(landmark.name)
-            Spacer()
-            if landmark.isFavorite {
-                Image(systemName: "star.fill")
-                    .imageScale(.medium)
-                    .foregroundColor(.yellow)
-            }
-        }
-    }
-}
-```
-
 ### Add a Control to Toggle the State
 
-A **binding** acts as a reference to a mutable state. When a user taps the toggle from off to on, and off again, the control uses the binding to update the view's state accordingly. 
+A binding acts as a reference to a mutable state. When a user taps the toggle from off to on, and off again, the control uses the binding to update the view's state accordingly. 
 
 To combine static and dynamic views in a list, or to combine groups of dynamic views, use the ForEach type instead of passing your collection of data to **List**. 
 
@@ -433,7 +413,7 @@ struct LandmarkList: View {
 }
 ```
 
-Next, add a **Toggle view** as the first child of the **List** view, passing a binding to show FavoritesOnly. You use the $ prefix to access a binding to a state variable, or one of its properties. 
+Next, add a **Toggle** view as the first child of the **List** view, passing a binding to ```show FavoritesOnly```. You use the **$ prefix** **to access a binding to a *state* variable**, or one of its properties. 
 
 ```swift
 struct LandmarkList: View {
@@ -464,7 +444,7 @@ struct LandmarkList: View {
 
 ### Use and Observable Object for Storage
 
-To prepare for the user control which particular landmarks are favorites, you'll first store the landmark data in an **observable** object. An **observable** object is a custom object for your data that can be bound to a view from storage in SwiftUI's environment. SwiftUI watches for any changes to observable objects that could affect a view, and displays the correct version of the view after a change. 
+To prepare for the user control which particular landmarks are favorites, you'll first store the landmark data in an **observable** object. An ***observable object*** *is a custom object for your data that can be bound to a view from storage in SwiftUI's environment*. SwiftUI watches for any changes to observable objects that could affect a view, and displays the correct version of the view after a change. 
 
 SwiftUI subscribes to your observable object, and updates any views that need refreshing when the data changes. An observable object needs to publish any changes to its data, so that it's subscribers can pick up the change, therefore add the **@Published** attribute to each property. 
 
@@ -487,6 +467,7 @@ The ```userData``` property gets its value automatically, as long as the environ
 struct LandmarkList: View {
 //    @State var showFavoritesOnly = false
     @EnvironmentObject var userData: UserData    
+  
     var body: some View {
         NavigationView {
             List {
@@ -510,6 +491,61 @@ struct LandmarkList: View {
 ```
 
 
+
+![icon](images/ss-10.png)
+
+```swift
+struct LandmarkDetail: View {
+    @EnvironmentObject var userData: UserData
+    var landmark: Landmark
+    
+    var landmarkIndex: Int {
+        userData.landmarks.firstIndex {
+            $0.id == landmark.id
+        }!
+    }
+    
+    var body: some View {
+        VStack {
+            MapView(coordinate: landmark.locationCoordinate)
+                .edgesIgnoringSafeArea(.top)
+                .frame(height: 300)
+            CircleImage(image: landmark.image)
+                .offset(y:-130)
+                .padding(.bottom, -130)
+            VStack(alignment: .leading) {
+                HStack {
+                    Text(landmark.name)
+                        .font(.title)
+                    
+                    Button(action: {
+                        self.userData.landmarks[self.landmarkIndex].isFavorite.toggle()
+                    }) {
+                        if self.userData.landmarks[self.landmarkIndex].isFavorite {
+                            Image(systemName: "star.fill")
+                                .foregroundColor(Color.yellow)
+                        }else {
+                            Image(systemName: "star")
+                                .foregroundColor(Color.gray)
+                        }
+                    }
+                    
+                }
+                HStack {
+                    Text(landmark.park)
+                        .font(.subheadline)
+                    Spacer()
+                    Text(landmark.state)
+                        .font(.subheadline)
+                }
+            }
+                .padding()
+            Spacer()
+        }
+        .navigationBarTitle(Text(landmark.name), displayMode: .inline)
+    }
+}
+```
 
 
 
